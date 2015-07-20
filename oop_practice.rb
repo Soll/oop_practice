@@ -1,41 +1,49 @@
 class Notebook
-	attr_accessor :notes_array
+	attr_accessor :notes_array                          #обеспечиваем доступ к массиву
+	@@count_sn = 0										#счетчик объектов SharedNotebook
 
-	def initialize
-		@notes_array = Array.new
+	def initialize										
+		@notes_array = Array.new						#массив заметок
+		if self.class == SharedNotebook					#если создаваемый объект - SharedNotebook, то увеличиваем счетчик на 1
+			@@count_sn += 1
+		end
 	end
 
-	def add_note(note)
+	def add_note(note)									#добавляем в массив объектов очередную заметку
 		@notes_array.push(note)
 	end
 
 	def clean
-		@notes_array.clear
+		@notes_array.clear								#очищаем массив заметок
 	end
 end
 
 class Note
-	attr_accessor :text, :shared
+	attr_accessor :text, :shared                        #доступ к тексту и признаку, расшарен ли объект
 	
 	def initialize(text)
-		@text = text
-		@shared = false
+		@text = text                                    #текст при инициализации
+		@shared = false                                 #изначально заметка недоступна
 	end
 
-	def share(note)
-		@note_dup = note.dup
-		@note_dup.shared = true
-		return @note_dup	
+	def share(note)                                     
+		@note_dup = note.dup                            #дубликат объекта типа Note
+		@note_dup.shared = true                         #атрибут shared устанавливаем в true
+		return @note_dup	                            #возвращаем дубликат объекта
 	end
 end
 
 class SharedNotebook < Notebook
 	def add_note(note)
-		@notes_array.push(note.share(note))
+		@notes_array.push(note.share(note))             #заносим в массив дубликат объекта Note с атрибутом share установленного в true
 	end
 
 	def count
-		puts notes_array.size
+		puts notes_array.size                           #метод подсчета объектов в массиве общего блокнота
+	end
+
+	def count_books
+		puts @@count_sn                                 #метод подсчета количества общих блокнотов
 	end
 end
 
@@ -69,7 +77,15 @@ for sep_note in sharedbook1.notes_array
 	puts sep_note.shared
 end
 
-puts "-----------------Notebook class entries. Verify SHARED attribute to be FALSE-----------------"
+puts "-----------------SharedNotebook class entries count-----------------"
+
+sharedbook1.count
+
+puts "-----------------SharedNotebook class objects count-----------------"
+
+sharedbook1.count_books
+
+puts "-----Notebook class entries. Verify SHARED attribute to be FALSE-----------"
 
 for sep_note in notebook1.notes_array
 	puts sep_note.text
